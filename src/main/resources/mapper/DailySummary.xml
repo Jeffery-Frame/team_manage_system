@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wanxi.springboot.team.manage.system.mapper.DailySummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wanxi.springboot.team.manage.system.model.DailySummary">
+        <id column="id" property="id" />
+        <result column="user" property="user" />
+        <result column="study" property="study" />
+        <result column="harvest" property="harvest" />
+        <result column="insufficient" property="insufficient" />
+        <result column="create_time" property="createTime" />
+        <result column="publish_status" property="publishStatus" />
+        <result column="enable" property="enable" />
+        <result column="read_status" property="readStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user, study, harvest, insufficient, create_time, publish_status, enable, read_status
+    </sql>
+
+</mapper>

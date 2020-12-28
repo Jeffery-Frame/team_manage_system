@@ -1,0 +1,90 @@
+server:
+  port: 8080
+front:
+  host-port: localhost:8089
+spring:
+  application:
+    name: es-product
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+        cluster-nodes: 127.0.0.1:9300 # es\u7684\u8FDE\u63A5\u5730\u5740\u53CA\u7AEF\u53E3\u53F7
+        cluster-name: es # es\u96C6\u7FA4\u7684\u540D\u79F0
+      client:
+        reactive:
+          socket-timeout: 15000
+  datasource:
+    url: jdbc:mysql://localhost:3306/sign_system?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+    port: 5672
+  redis:
+    host: localhost # Redis\u670D\u52A1\u5668\u5730\u5740
+    database: 0 # Redis\u6570\u636E\u5E93\u7D22\u5F15\uFF08\u9ED8\u8BA4\u4E3A0\uFF09
+    port: 6379 # Redis\u670D\u52A1\u5668\u8FDE\u63A5\u7AEF\u53E3
+    password: # Redis\u670D\u52A1\u5668\u8FDE\u63A5\u5BC6\u7801\uFF08\u9ED8\u8BA4\u4E3A\u7A7A\uFF09
+mybatis-plus:
+  type-aliases-package: com.wanxi.springboot.team.manage.system.model
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    com.wanxi.springboot.team.manage.system.mapper: debug
+jwt:
+  #定义我们的盐  密码
+  secret: mySecret
+  #过期时间
+  expiration: 1800
+    #token 的类型 说明他以 bearer 开头
+  tokenHead: bearer
+    #token 对应的 key
+  tokenHeader: Authorization
+
+upload:
+  basePath: E:/IdeaWorksplace/team_manage_system_front/src/main/resources/static
+  outPath: E:/IdeaWorksplace/team_manage_system_front/target/classes/static
+  url: /images/
+
+sex:
+  man: 男
+  women: 女
+graduate:
+  pupil: 小学
+  junior: 初中
+  high: 高中
+  university: 大学
+user:
+  status:
+    normal: 正常
+    frozen: 冻结
+enable:
+  yes: 正常
+  no: 冻结
+permission:
+  type:
+    catalog: 目录
+    menu: 菜单
+    button: 按钮
+sign:
+  status:
+    arrived: 已到
+    late: 迟到
+    leave: 请假
+    truancy: 旷课
+daily:
+  summary:
+    publish:
+      status:
+        draft: 草稿
+        published: 已发布
+    read:
+      status:
+        noread: 未批阅
+        read: 已批阅

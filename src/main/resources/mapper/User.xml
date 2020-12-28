@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wanxi.springboot.team.manage.system.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wanxi.springboot.team.manage.system.model.User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="password" property="password"/>
+        <result column="icon" property="icon"/>
+        <result column="phone" property="phone"/>
+        <result column="entrance_time" property="entranceTime"/>
+        <result column="batch" property="batch"/>
+        <result column="graduate" property="graduate"/>
+        <result column="graduateName" property="graduateName"/>
+        <result column="sex" property="sex"/>
+        <result column="sexName" property="sexName"/>
+        <result column="address" property="address"/>
+        <result column="create_time" property="createTime"/>
+        <result column="enable" property="enable"/>
+        <result column="enableName" property="enableName"/>
+        <result column="status" property="status"/>
+        <result column="statusName" property="statusName"/>
+        <result column="role" property="role"/>
+        <result column="roleName" property="roleName"/>
+        <result column="note" property="note"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        select user.*,
+			(select name from code where code in (select sex from user)) as sexName,
+			(select name from code where code in (select enable from user)) as enableName,
+			(select name from code where code in (select status from user)) as statusName,
+			(select name from code where code in (select graduate from user)) as graduateName,
+			(select code from role where id in(select role from user_role where user in (select id from user))) as role,
+			(select id from role where id in(select role from user_role where user in (select id from user))) as roleName
+			from user
+    </sql>
+
+    <select id="getUserByName" resultType="com.wanxi.springboot.team.manage.system.model.User">
+        <include refid="Base_Column_List"/>
+        where code=#{username}
+    </select>
+    <select id="getPermissionsByUserId" resultType="com.wanxi.springboot.team.manage.system.model.Permission">
+		SELECT
+			*
+		FROM
+			permission p
+		WHERE
+			p.id IN (
+			SELECT
+				rp.permission
+			FROM
+				role_permission rp
+			WHERE
+				rp.role IN ( SELECT ur.role FROM user_role ur WHERE ur.USER = #{id} ) UNION
+			SELECT
+				up.permission
+			FROM
+				user_permission up
+			WHERE
+				up.type = 1
+				AND up.USER = #{id}
+			)
+			AND p.id NOT IN (
+			SELECT
+				up.permission
+			FROM
+				user_permission up
+			WHERE
+			up.type =- 1
+			AND up.USER = #{id})
+    </select>
+    <insert id="register" useGeneratedKeys="true">
+        insert into user
+        (code,password,
+        <if test="phone!=''">
+            phone,
+        </if>
+        <if test="sex!=''">
+            sex,
+        </if>
+        <if test="graduate!=''">
+            graduate,
+        </if>
+        <if test="entranceTime!=''">
+            entrance_time,
+        </if>
+        <if test="icon!=''">
+            icon,
+        </if>
+        create_time,enable,status)
+        values (#{code},#{password},
+        <if test="phone!=''">
+            #{phone},
+        </if>
+        <if test="address!=''">
+            #{address},
+        </if>
+        <if test="sex!=''">
+            #{sex},
+        </if>
+        <if test="graduate!=''">
+            #{graduate},
+        </if>
+        <if test="entranceTime!=''">
+            date_format(#{entranceTime},'%Y-%m-%d'),
+        </if>
+        <if test="icon!=''">
+            #{icon},
+        </if>
+        date_format(now(),'%Y-%m-%d %H:%i:%s'),#{enable},#{status})
+    </insert>
+    <select id="getUsers" resultType="com.wanxi.springboot.team.manage.system.model.User">
+        <include refid="Base_Column_List"/>
+        <where>
+            enable='yes'
+            <if test="param!=''">
+                and (code=#{param} or phone=#{param} or name like concat(#{param},'%'))
+            </if>
+            <if test="start_date!=''">
+                and entrance_time &gt;= date_format(#{start_date},'%Y-%m-%d')
+            </if>
+            <if test="end_date!=''">
+                and entrance_time &lt;= date_format(#{end_date},'%Y-%m-%d')
+            </if>
+            <if test="sex!=''">
+                and sex = #{sex}
+            </if>
+            <if test="graduate!=''">
+                and graduate = #{graduate}
+            </if>
+            <if test="role!=''">
+                and role = #{role}
+            </if>
+        </where>
+        limit #{page},#{limit}
+    </select>
+    <select id="getUserCount" resultType="java.lang.Long">
+        select count(*) from user
+        <where>
+            enable='yes'
+            <if test="param!=''">
+                and (code=#{param} or phone=#{param} or name like concat(#{param},'%'))
+            </if>
+            <if test="start_date!=''">
+                and entrance_time &gt;= date_format(#{start_date},'%Y-%m-%d')
+            </if>
+            <if test="end_date!=''">
+                and entrance_time &lt;= date_format(#{end_date},'%Y-%m-%d')
+            </if>
+            <if test="sex!=''">
+                and sex = #{sex}
+            </if>
+            <if test="graduate!=''">
+                and graduate = #{graduate}
+            </if>
+            <if test="role!=''">
+                and id in (select user from user_role where role=#{role})
+            </if>
+        </where>
+    </select>
+    <select id="getUserList" resultType="com.wanxi.springboot.team.manage.system.model.User">
+		select * from user
+	</select>
+    <update id="updateUserStatus">
+        update user set status=#{status} where id=#{id}
+    </update>
+    <update id="deleteUser">
+        update user set enable='no' where id=#{id}
+    </update>
+    <update id="updateUser">
+        update user set
+        <if test="code!=''">
+            code=#{code},
+        </if>
+        <if test="name!=''">
+            name=#{name},
+        </if>
+        <if test="password!=''">
+            password=#{password},
+        </if>
+        <if test="icon!=''">
+            icon=#{icon},
+        </if>
+        <if test="phone!=''">
+            phone=#{phone},
+        </if>
+        <if test="address!=''">
+            address=#{address},
+        </if>
+        <if test="entranceTime">
+            entrance_time=#{entranceTime},
+        </if>
+        <if test="sex!=''">
+            sex=#{sex},
+        </if>
+        <if test="address!=''">
+            address=#{address},
+        </if>
+        <if test="graduate!=''">
+            graduate=#{graduate}
+        </if>
+        where id=#{id}
+    </update>
+
+    <select id="getCodeList" resultType="com.wanxi.springboot.team.manage.system.model.Code">
+        select * from code
+    </select>
+</mapper>
